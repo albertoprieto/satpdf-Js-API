@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <!--  https://satpdf.com/ -->
+        <!--  From XML to PDF using the satpdf API -->
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>XML to PDF</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    </head>
+
+    <body>
+        <div class="container mt-5">
+            <div class="row">
+                <div class="col-md-6 offset-md-3">
+                    <h2 class="text-center mb-4">XML to PDF</h2>
+                    <div class="form-group">
+                        <label for="xmlFile">Select</label>
+                        <input type="file" class="form-control" id="xmlFile">
+                    </div>
+                    <button class="btn btn-primary" onclick="processXML()">Convert</button>
+                    <div id="result" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function processXML() {
+                var fileInput = document.getElementById('xmlFile');
+                var nombreCompletoArchivo = fileInput.value;
+                var nombreArchivo = nombreCompletoArchivo.split('\\').pop().split('/').pop();
+                var nombreArchivoPdf = nombreArchivo.replace(/\.xml$/, ".pdf");
+                var file = fileInput.files[0];
+
+                var reader = new FileReader();
+                reader.onload = function(event) {
+                    var xmlContent = event.target.result;
+                    var fileName = file.name.split('.')[0];
+
+                    var apiUrl = "pass_the_api_url";
+                    var xhr = new XMLHttpRequest();
+                    xhr.withCredentials = true;
+
+                    xhr.addEventListener("readystatechange", function() {
+                        if (this.readyState === 4) {
+                            handleResponse(this.responseText, nombreArchivoPdf);
+                        }
+                    });
+
+                    xhr.open("POST", apiUrl);
+                    xhr.setRequestHeader("Authorization", "pass_secret_key_here");
+                    xhr.setRequestHeader("Content-Type", "application/json");
+
+                    var data = JSON.stringify({
+                        "xml": xmlContent,
+                        "file_name": fileName
+                    });
+
+                    xhr.send(data);
+                };
+
+                reader.readAsText(file);
+            }
+
+            function handleResponse(response, nombreArchivoPdf) {
+                var resultElement = document.getElementById('result');
+                var jsonResponse = JSON.parse(response);
+                var base64x = jsonResponse['pdf'];
+
+                downloadPDF(base64x, nombreArchivoPdf);
+            }
+
+            function downloadPDF(pdf, nombreArchivoPdf) {
+                const linkSource = `data:application/pdf;base64,${pdf}`;
+                const downloadLink = document.createElement("a");
+                const fileName = nombreArchivoPdf;
+                downloadLink.href = linkSource;
+                downloadLink.download = fileName;
+                downloadLink.click();
+            }
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+
+    </body>
+</html>
