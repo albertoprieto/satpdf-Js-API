@@ -41,6 +41,8 @@ Click the "Convert" button.
 
 The result will be displayed, and the generated PDF will be available for download.
 
+Use the main if the purpose is to process all XML files in a directory
+
 ## Configuration
 Replace the following placeholder values in the script with your actual API URL and secret key:
    
