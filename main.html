@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XML to PDF</title>
-    <!-- Agregar el enlace a Bootstrap CDN -->
-
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-
 </head>
 <body>
     <div class="container mt-5">
@@ -15,23 +12,24 @@
             <div class="col-md-6 offset-md-3">
                 <h2 class="text-center mb-4">Convertir de XML a PDF</h2>
                 <div class="form-group">
-
                     <label for="xmlFolder">Selecciona una carpeta de XML</label>
                     <input type="file" class="form-control" id="xmlFolder" webkitdirectory directory multiple>
-
-
                 </div>
-                <button class="btn btn-primary" onclick="processXML()">Convertir</button>
+                <button class="btn btn-danger" onclick="convertXML()">Convertir</button>
                 <div id="result" class="mt-3"></div>
             </div>
         </div>
     </div>
 
     <script>
-
-        function processXML() {
+        function convertXML() {
             var folderInput = document.getElementById('xmlFolder');
             var files = folderInput.files;
+
+            if (files.length === 0) {
+                alert('Por favor seleccione al menos un archivo XML.');
+                return;
+            }
 
             for (var i = 0; i < files.length; i++) {
                 var file = files[i];
@@ -48,7 +46,7 @@
             reader.onload = function(event) {
                 var xmlContent = event.target.result;
                 var fileName = xmlFile.name.split('.')[0];
-                var apiUrl = "API_URL";
+                var apiUrl = "API_URL"; // Reemplaza "API_URL" con la URL real de tu API
                 var xhr = new XMLHttpRequest();
                 xhr.withCredentials = true;
 
@@ -59,8 +57,7 @@
                 });
 
                 xhr.open("POST", apiUrl);
-
-                xhr.setRequestHeader("Authorization", "SECRET_KEY");
+                xhr.setRequestHeader("Authorization", "SECRET_KEY"); // Reemplaza "SECRET_KEY" con tu clave de autorización real
                 xhr.setRequestHeader("Content-Type", "application/json");
                 var data = JSON.stringify({
                     "xml": xmlContent,
@@ -72,29 +69,28 @@
 
             reader.readAsText(xmlFile);
         }
+
         function handleResponse(response, nombreArchivoPdf) {
             var resultElement = document.getElementById('result');
             var jsonResponse = JSON.parse(response);
             var base64x = jsonResponse['pdf'];
-
             downloadPDF(base64x, nombreArchivoPdf);
         }
 
         function downloadPDF(pdf, nombreArchivoPdf) {
             const linkSource = `data:application/pdf;base64,${pdf}`;
             const downloadLink = document.createElement("a");
-            const fileName = nombreArchivoPdf;
             downloadLink.href = linkSource;
-            downloadLink.download = fileName;
-            downloadLink.click();
+            downloadLink.download = `${nombreArchivoPdf}.pdf`;
+            downloadLink.classList.add("btn", "btn-warning", "mt-2"); // Añadir clases de Bootstrap al botón de descarga
+            downloadLink.textContent = `Descargar PDF\n${nombreArchivoPdf}.pdf`; // Texto con nombre del archivo PDF
+            document.getElementById('result').appendChild(downloadLink);
+            // downloadLink.click(); // No se hace click automáticamente aquí
         }
     </script>
 
-    
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
-
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
